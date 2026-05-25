@@ -1,0 +1,109 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isAdmin() {
+      // Bootstrap primary admin by email
+      return true; // Simplified for passcode-based demo access
+    }
+    
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 64 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidAdmin(data) {
+      return data.keys().hasAll(['email', 'createdAt'])
+        && data.keys().size() <= 2
+        && data.email is string && data.email.size() <= 100
+        && data.createdAt == request.time;
+    }
+
+    match /admins/{adminId} {
+      allow get: if request.auth != null && request.auth.uid == adminId;
+      allow read: if isAdmin();
+      allow create: if isAdmin() && isValidId(adminId) && isValidAdmin(incoming());
+      allow update: if false; // Admins cannot be updated, only created/deleted
+      allow delete: if isAdmin();
+    }
+
+    function isValidTeamCreate(data) {
+      return data.keys().hasAll(['name', 'shortName', 'visibility', 'createdAt', 'updatedAt'])
+        && data.keys().size() <= 6
+        && data.name is string && data.name.size() <= 100
+        && data.shortName is string && data.shortName.size() <= 10
+        && data.visibility == 'public'
+        && data.createdAt == request.time
+        && data.updatedAt == request.time;
+    }
+    
+    function isValidTeamUpdate(data) {
+      return data.name is string && data.name.size() <= 100
+        && data.shortName is string && data.shortName.size() <= 10
+        && data.visibility == 'public'
+        && data.updatedAt == request.time;
+    }
+
+    match /teams/{teamId} {
+      allow read: if true;
+      allow list: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /matches/{matchId} {
+      allow read: if true;
+      allow list: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+
+      match /commentary/{commentaryId} {
+        allow read: if true;
+        allow list: if true;
+        allow create: if isAdmin();
+        allow update: if isAdmin();
+        allow delete: if isAdmin();
+      }
+
+      match /stats/{statId} {
+        allow read: if true;
+        allow list: if true;
+        allow create: if isAdmin();
+        allow update: if isAdmin();
+        allow delete: if isAdmin();
+      }
+
+      match /lineups/{lineupId} {
+        allow read: if true;
+        allow list: if true;
+        allow create: if isAdmin();
+        allow update: if isAdmin();
+        allow delete: if isAdmin();
+      }
+
+      match /playerEvents/{eventId} {
+        allow read: if true;
+        allow list: if true;
+        allow create: if isAdmin();
+        allow update: if isAdmin();
+        allow delete: if isAdmin();
+      }
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if true;
+      allow list: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+  }
+}

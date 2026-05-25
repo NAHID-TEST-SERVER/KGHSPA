@@ -1,0 +1,82 @@
+{
+  "entities": {
+    "Admin": {
+      "title": "Admin",
+      "description": "Admin users allowed to write data",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["email", "createdAt"]
+    },
+    "Team": {
+      "title": "Team",
+      "description": "Football team",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "shortName": { "type": "string" },
+        "logo": { "type": "string" },
+        "visibility": { "type": "string", "enum": ["public"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["name", "shortName", "visibility"]
+    },
+    "Match": {
+      "title": "Match",
+      "description": "Football match",
+      "type": "object",
+      "properties": {
+        "homeTeamId": { "type": "string" },
+        "homeTeamName": { "type": "string" },
+        "homeTeamLogo": { "type": "string" },
+        "awayTeamId": { "type": "string" },
+        "awayTeamName": { "type": "string" },
+        "awayTeamLogo": { "type": "string" },
+        "homeScore": { "type": "number" },
+        "awayScore": { "type": "number" },
+        "status": { "type": "string", "enum": ["SCHEDULED", "LIVE", "HT", "FT"] },
+        "minute": { "type": "string" },
+        "visibility": { "type": "string", "enum": ["public"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["homeTeamId", "awayTeamId", "status", "visibility"]
+    },
+    "Commentary": {
+      "title": "Commentary",
+      "description": "Match commentary",
+      "type": "object",
+      "properties": {
+        "matchId": { "type": "string" },
+        "minute": { "type": "string" },
+        "text": { "type": "string" },
+        "type": { "type": "string", "enum": ["info", "goal", "card", "sub"] },
+        "visibility": { "type": "string", "enum": ["public"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["matchId", "text", "type", "visibility"]
+    }
+  },
+  "firestore": {
+    "admins/{adminId}": {
+      "schema": { "$ref": "#/entities/Admin" },
+      "description": "Authorized admins"
+    },
+    "teams/{teamId}": {
+      "schema": { "$ref": "#/entities/Team" },
+      "description": "Football teams list"
+    },
+    "matches/{matchId}": {
+      "schema": { "$ref": "#/entities/Match" },
+      "description": "Live and scheduled matches"
+    },
+    "matches/{matchId}/commentary/{commentaryId}": {
+      "schema": { "$ref": "#/entities/Commentary" },
+      "description": "Live match commentary events"
+    }
+  }
+}
